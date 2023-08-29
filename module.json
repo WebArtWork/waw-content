@@ -1,0 +1,18 @@
+{
+    "name": "Content",
+    "router": "index.js schema.js",
+    "crud": {
+        "update": {
+            "keys": [
+				"url",
+				"thumb",
+				"content",
+				"name",
+				"description",
+				"data"
+			]
+        },
+        "delete": [""]
+    },
+    "dependencies": {}
+}

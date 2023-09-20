@@ -1,7 +1,6 @@
 {
 	"repo" : "git@github.com:WebArtWork/waw-content.git",
     "name": "Content",
-    "router": "index.js schema.js",
     "crud": {
         "update": {
             "keys": [

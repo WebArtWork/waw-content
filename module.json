@@ -1,9 +1,9 @@
 {
-	"repo" : "git@github.com:WebArtWork/waw-content.git",
-    "name": "Content",
-    "crud": {
-        "update": {
-            "keys": [
+	"repo": "git@github.com:WebArtWork/waw-content.git",
+	"name": "Content",
+	"crud": {
+		"update": {
+			"keys": [
 				"url",
 				"thumb",
 				"content",
@@ -11,8 +11,10 @@
 				"description",
 				"data"
 			]
-        },
-        "delete": [""]
-    },
-    "dependencies": {}
+		},
+		"delete": [
+			""
+		]
+	},
+	"dependencies": {}
 }

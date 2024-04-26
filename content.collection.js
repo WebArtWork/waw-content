@@ -6,6 +6,10 @@ module.exports = function(waw) {
 		description: String,
 		content: String,
 		data: {},
+		stores: [{
+			type: waw.mongoose.Schema.Types.ObjectId,
+			ref: 'Store'
+		}],
 		author: {
 			type: waw.mongoose.Schema.Types.ObjectId,
 			ref: 'User'
@@ -23,6 +27,7 @@ module.exports = function(waw) {
 		this.author = user._id;
 		this.moderators = [user._id];
 		this.url = obj.url;
+		this.stores = obj.stores;
 		this.thumb = obj.thumb;
 		this.content = obj.content;
 		this.name = obj.name;

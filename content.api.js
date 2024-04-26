@@ -2,9 +2,6 @@ module.exports = async (waw) => {
 	waw.crud("service", {
 		get: [
 			{
-				ensure: waw.next,
-			},
-			{
 				name: "public",
 				ensure: waw.next,
 				query: () => {

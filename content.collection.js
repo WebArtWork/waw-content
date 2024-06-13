@@ -1,5 +1,13 @@
 module.exports = function(waw) {
 	const Schema = waw.mongoose.Schema({
+		top: {
+			type: Boolean,
+			default: false
+		},
+		enabled: {
+			type: Boolean,
+			default: false
+		},
 		url: String,
 		thumb: String,
 		name: String,

@@ -5,6 +5,8 @@
 		"get": ["", "public", "scopes", "links"],
 		"update": {
 			"keys": [
+				"enabled",
+				"top",
 				"url",
 				"thumb",
 				"content",

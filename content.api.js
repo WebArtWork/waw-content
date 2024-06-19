@@ -1,5 +1,5 @@
 module.exports = async (waw) => {
-	waw.crud("service", {
+	waw.crud("content", {
 		get: [
 			{
 				name: "public",
@@ -22,7 +22,7 @@ module.exports = async (waw) => {
 				ensure: async (req, res, next) => {
 					if (req.user) {
 						req.scopes_ids = (
-							await waw.Service.find({
+							await waw.Content.find({
 								moderators: req.user._id,
 								isTemplate: true,
 							}).select("_id")
@@ -76,7 +76,7 @@ module.exports = async (waw) => {
 					req.body.url = req.body.name.toLowerCase().replace(/[^a-z0-9]/g, "");
 				}
 				if (req.body.url) {
-					while (await waw.Service.count({ url: req.body.url })) {
+					while (await waw.Content.count({ url: req.body.url })) {
 						const url = req.body.url.split("_");
 						req.body.url =
 							url[0] + "_" + (url.length > 1 ? Number(url[1]) + 1 : 1);

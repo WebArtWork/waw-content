@@ -113,4 +113,17 @@ module.exports = async (waw) => {
 			}
 		}
 	}
+
+	const contents = await waw.Content.find({});
+	setTimeout(() => {
+		for (const content of contents) {
+			if(content.url && content.store) {
+				waw.configurePage[store.domain]({
+					json: content,
+					page: 'content',
+					url: content.url
+				});
+			}
+		}
+	}, 1000);
 };

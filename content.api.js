@@ -115,7 +115,6 @@ module.exports = async (waw) => {
 	}
 
 	const contents = await waw.Content.find({});
-	console.log(contents);
 	setTimeout(() => {
 		for (const content of contents) {
 			if(content.url && content.store) {

@@ -114,16 +114,23 @@ module.exports = async (waw) => {
 		}
 	}
 
-	const contents = await waw.Content.find({});
+	const contents = await waw.Content.find().populate({
+		path: "stores",
+		select: "domain",
+	});
+
 	setTimeout(() => {
 		for (const content of contents) {
-			if(content.url && content.store) {
-				waw.configurePage[store.domain]({
-					json: content,
-					page: 'content',
-					url: content.url
-				});
+			if (content.stores && content.url) {
+				for (const store of content.stores) {
+
+					waw.configurePage[store.domain]({
+						pageJson: { content },
+						page: 'content',
+						url: content.url
+					});
+				}
 			}
 		}
 	}, 1000);
-};
+}

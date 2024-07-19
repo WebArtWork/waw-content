@@ -114,6 +114,36 @@ module.exports = async (waw) => {
 		}
 	}
 
+
+	const reloads = {};
+	waw.addJson(
+		"storePrepareContents",
+		async (store, fillJson, req) => {
+			reloads[store._id] = reloads[store._id] || [];
+			const fillAllContents = async () => {
+				if (!fillJson.tagsIds) {
+					return setTimeout(fillAllContents, 500);
+				}
+
+				fillJson.allContents = await waw.Content.find({
+					stores: store.id,
+					enabled: true,
+				}).lean();
+				for (const content of fillJson.allContents) {
+					content.id = content._id.toString();
+					content._id = content._id.toString();
+					content.tags = (content.tags || []).map((t) => t.toString());
+				}
+				fillJson.top_contents = fillJson.allContents.filter((p) => {
+					return p.top;
+				});
+			};
+			fillAllContents();
+			reloads[store._id].push(fillAllContents);
+		},
+		"Prepare updatable documents of products"
+	);
+
 	const contents = await waw.Content.find().populate({
 		path: "stores",
 		select: "domain",

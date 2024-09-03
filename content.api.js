@@ -27,21 +27,25 @@ module.exports = async (waw) => {
 								isTemplate: true,
 							}).select("_id")
 						).map((p) => p.id);
-
+		
 						next();
 					} else {
 						res.json([]);
 					}
 				},
 				query: (req) => {
-					return {
-						template: {
-							$in: req.scopes_ids,
-						},
-					};
+					if (req.user.is.admin) {
+						return {};
+					} else {
+						return {
+							template: {
+								$in: req.scopes_ids,
+							},
+						};
+					}
 				},
 			},
-		],
+		],		
 		update: {
 			query: (req) => {
 				if (req.user.is.admin) {

@@ -1,4 +1,23 @@
 module.exports = async (waw) => {
+	// Define the ensure middleware for admin and owner roles
+	const ensure = waw.role("admin owner", async (req, res, next) => {
+		if (!req.user.is.admin) {
+			req.storeIds = (
+				await waw.Store.find({
+					moderators: req.user._id,
+				}).select("_id")
+			).map((s) => s.id);
+
+			req.scopes_ids = (
+				await waw.Content.find({
+					moderators: req.user._id,
+					isTemplate: true,
+				}).select("_id")
+			).map((p) => p.id);
+		}
+		next();
+	});
+
 	waw.crud("content", {
 		get: [
 			{
@@ -19,59 +38,42 @@ module.exports = async (waw) => {
 			},
 			{
 				name: "links",
-				ensure: async (req, res, next) => {
-					if (req.user) {
-						req.scopes_ids = (
-							await waw.Content.find({
-								moderators: req.user._id,
-								isTemplate: true,
-							}).select("_id")
-						).map((p) => p.id);
-		
-						next();
-					} else {
-						res.json([]);
-					}
-				},
+				ensure,
 				query: (req) => {
-					if (req.user.is.admin) {
-						return {};
-					} else {
-						return {
+					return req.user.is.admin
+						? {}
+						: {
 							template: {
 								$in: req.scopes_ids,
 							},
 						};
-					}
 				},
 			},
 		],		
 		update: {
+			ensure,
 			query: (req) => {
-				if (req.user.is.admin) {
-					return {
+				return req.user.is.admin
+					? {
 						_id: req.body._id,
-					};
-				} else {
-					return {
+					}
+					: {
 						moderators: req.user._id,
 						_id: req.body._id,
 					};
-				}
 			},
 		},
 		delete: {
+			ensure,
 			query: (req) => {
-				if (req.user.is.admin) {
-					return {
+				return req.user.is.admin
+					? {
 						_id: req.body._id,
-					};
-				} else {
-					return {
+					}
+					: {
 						moderators: req.user._id,
 						_id: req.body._id,
 					};
-				}
 			},
 		},
 		create: {

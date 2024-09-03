@@ -21,6 +21,18 @@ module.exports = async (waw) => {
 	waw.crud("content", {
 		get: [
 			{
+				ensure,
+				query: (req) => {
+					return req.user.is.admin
+						? {}
+						: {
+							template: {
+								$in: req.scopes_ids,
+							},
+						};
+				},
+			},
+			{
 				name: "public",
 				ensure: waw.next,
 				query: () => {
@@ -38,18 +50,29 @@ module.exports = async (waw) => {
 			},
 			{
 				name: "links",
-				ensure,
+				ensure: async (req, res, next) => {
+					if (req.user) {
+						req.scopes_ids = (
+							await waw.Content.find({
+								moderators: req.user._id,
+								isTemplate: true,
+							}).select("_id")
+						).map((p) => p.id);
+
+						next();
+					} else {
+						res.json([]);
+					}
+				},
 				query: (req) => {
-					return req.user.is.admin
-						? {}
-						: {
-							template: {
-								$in: req.scopes_ids,
-							},
-						};
+					return {
+						template: {
+							$in: req.scopes_ids,
+						},
+					};
 				},
 			},
-		],		
+		],
 		update: {
 			ensure,
 			query: (req) => {

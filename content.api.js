@@ -1,5 +1,4 @@
 module.exports = async (waw) => {
-	// Define the ensure middleware for admin and owner roles
 	const ensure = waw.role("admin owner", async (req, res, next) => {
 		if (!req.user.is.admin) {
 			req.storeIds = (
@@ -7,13 +6,6 @@ module.exports = async (waw) => {
 					moderators: req.user._id,
 				}).select("_id")
 			).map((s) => s.id);
-
-			req.scopes_ids = (
-				await waw.Content.find({
-					moderators: req.user._id,
-					isTemplate: true,
-				}).select("_id")
-			).map((p) => p.id);
 		}
 		next();
 	});
@@ -26,8 +18,8 @@ module.exports = async (waw) => {
 					return req.user.is.admin
 						? {}
 						: {
-							template: {
-								$in: req.scopes_ids,
+							stores: {
+								$in: req.storeIds,
 							},
 						};
 				},
@@ -56,6 +48,9 @@ module.exports = async (waw) => {
 							await waw.Content.find({
 								moderators: req.user._id,
 								isTemplate: true,
+								stores: {
+									$in: req.storeIds,
+								},
 							}).select("_id")
 						).map((p) => p.id);
 
@@ -72,6 +67,13 @@ module.exports = async (waw) => {
 					};
 				},
 			},
+			{
+				name: "admin",
+				ensure: waw.role("admin"),
+				query: () => {
+					return {};
+				},
+			},
 		],
 		update: {
 			ensure,
@@ -81,8 +83,10 @@ module.exports = async (waw) => {
 						_id: req.body._id,
 					}
 					: {
-						moderators: req.user._id,
 						_id: req.body._id,
+						stores: {
+							$in: req.storeIds,
+						},
 					};
 			},
 		},
@@ -94,8 +98,10 @@ module.exports = async (waw) => {
 						_id: req.body._id,
 					}
 					: {
-						moderators: req.user._id,
 						_id: req.body._id,
+						stores: {
+							$in: req.storeIds,
+						},
 					};
 			},
 		},
@@ -111,6 +117,10 @@ module.exports = async (waw) => {
 							url[0] + "_" + (url.length > 1 ? Number(url[1]) + 1 : 1);
 					}
 				}
+				next();
+			},
+			ensureDomain: async (req, res, next) => {
+				req.body.domain = req.get("host");
 				next();
 			},
 		},
@@ -143,7 +153,6 @@ module.exports = async (waw) => {
 		}
 	}
 
-
 	const reloads = {};
 	waw.addJson(
 		"storePrepareContents",
@@ -170,16 +179,28 @@ module.exports = async (waw) => {
 		"Prepare updatable documents of products"
 	);
 
+	const contentsUpdate = async (content) => {
+		for (const storeId of content.stores || []) {
+			for (const reload of reloads[storeId] || []) {
+				reload();
+			}
+		}
+	};
+	waw.on("content_create", contentsUpdate);
+	waw.on("content_update", contentsUpdate);
+	waw.on("content_delete", contentsUpdate);
+
 	const contents = await waw.Content.find().populate({
 		path: "stores",
 		select: "domain",
 	});
 
+
+
 	setTimeout(() => {
 		for (const content of contents) {
 			if (content.stores && content.url) {
 				for (const store of content.stores) {
-
 					waw.configurePage[store.domain]({
 						pageJson: { content },
 						page: 'content',
@@ -189,4 +210,4 @@ module.exports = async (waw) => {
 			}
 		}
 	}, 1000);
-}
+};

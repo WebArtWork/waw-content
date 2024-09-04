@@ -180,11 +180,13 @@ module.exports = async (waw) => {
 	);
 
 	const contentsUpdate = async (content) => {
-		for (const storeId of content.stores || []) {
-			for (const reload of reloads[storeId] || []) {
-				reload();
+		setTimeout(() => {
+			for (const storeId of content.stores || []) {
+				for (const reload of reloads[storeId] || []) {
+					reload();
+				}
 			}
-		}
+		}, 2000);
 	};
 	waw.on("content_create", contentsUpdate);
 	waw.on("content_update", contentsUpdate);

@@ -175,9 +175,13 @@ module.exports = async (waw) => {
 			};
 			fillAllContents();
 			reloads[store._id].push(fillAllContents);
+
+
 		},
 		"Prepare updatable documents of products"
 	);
+
+
 
 	const contentsUpdate = async (content) => {
 		setTimeout(() => {
@@ -186,30 +190,34 @@ module.exports = async (waw) => {
 					reload();
 				}
 			}
-		}, 2000);
+			SetContent();
+		},
+			2000);
 	};
 	waw.on("content_create", contentsUpdate);
 	waw.on("content_update", contentsUpdate);
 	waw.on("content_delete", contentsUpdate);
 
-	const contents = await waw.Content.find().populate({
-		path: "stores",
-		select: "domain",
-	});
 
+	const SetContent = async () => {
+		const contents = await waw.Content.find().populate({
+			path: "stores",
+			select: "domain",
+		});
 
-
-	setTimeout(() => {
-		for (const content of contents) {
-			if (content.stores && content.url) {
-				for (const store of content.stores) {
-					waw.configurePage[store.domain]({
-						pageJson: { content },
-						page: 'content',
-						url: content.url
-					});
+		setTimeout(() => {
+			for (const content of contents) {
+				if (content.stores && content.url) {
+					for (const store of content.stores) {
+						waw.configurePage[store.domain]({
+							pageJson: { content },
+							page: 'content',
+							url: content.url
+						});
+					}
 				}
 			}
-		}
-	}, 1000);
+		}, 1000);
+		SetContent();
+	}
 };

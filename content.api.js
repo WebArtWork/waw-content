@@ -218,6 +218,6 @@ module.exports = async (waw) => {
 				}
 			}
 		}, 1000);
-		SetContent();
 	}
+	SetContent();
 };
